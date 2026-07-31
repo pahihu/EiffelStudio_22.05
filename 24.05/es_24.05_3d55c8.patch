@@ -1,0 +1,169 @@
+diff --git a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e b/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
+index c870913bf41..9eb1f0de2b8 100644
+--- a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
++++ b/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
+@@ -243,7 +243,7 @@ feature {NONE} -- Access
+ 			l_tools.put_last ({ES_WEB_BROWSER_TOOL})
+ 
+ 				-- ES Cloud tool
+-			l_tools.put_last ({ES_CLOUD_ACCOUNT_TOOL})
++			-- EiffelGPL l_tools.put_last ({ES_CLOUD_ACCOUNT_TOOL})
+ 
+ 				-- Source Control Management tool
+ 			l_tools.put_last ({ES_SCM_TOOL})
+diff --git a/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e b/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e
+index a57937429d4..1af32ee0345 100644
+--- a/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e
++++ b/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e
+@@ -78,7 +78,8 @@ feature -- Initialization
+ 			copyright_label: EV_LABEL
+ 			registration_label: EV_TEXT
+ 			info_label: EV_LABEL
+-			l_update_check_link, l_license_link: EV_HIGHLIGHT_LINK_LABEL
++			-- EiffelGPL l_update_check_link, l_license_link: EV_HIGHLIGHT_LINK_LABEL
++			l_license_link: EV_HIGHLIGHT_LINK_LABEL
+ 			hsep: EV_HORIZONTAL_SEPARATOR
+ 			ok_button: EV_BUTTON
+ 			white_cell: EV_CELL
+@@ -107,11 +108,12 @@ feature -- Initialization
+ 			version_label.align_text_left
+ 			version_label.set_background_color (bg)
+ 
+-			if {ES_GRAPHIC}.is_standard_edition then
+-					-- Check for update ...
+-				create l_update_check_link.make_with_text ("Check for update (channel: " + preferences.misc_data.update_channel + ")")
+-				l_update_check_link.select_actions.extend (agent check_for_update (l_update_check_link))
+-			end
++            -- EiffelGPL
++			-- if {ES_GRAPHIC}.is_standard_edition then
++			--		-- Check for update ...
++			--	 create l_update_check_link.make_with_text ("Check for update (channel: " + preferences.misc_data.update_channel + ")")
++			--	 l_update_check_link.select_actions.extend (agent check_for_update (l_update_check_link))
++			-- end
+ 
+ 			create l_license_link.make_with_text (interface_names.l_read_license_text)
+ 			l_license_link.select_actions.extend (agent do (create {EB_LICENSE_COMMAND}).execute end)
+@@ -132,10 +134,10 @@ feature -- Initialization
+ 			eiffel_text_box.set_padding (Layout_constants.Default_padding_size)
+ 			eiffel_text_box.extend (version_label)
+ 			eiffel_text_box.disable_item_expand (version_label)
+-			if l_update_check_link /= Void then
+-				eiffel_text_box.extend (l_update_check_link)
+-				eiffel_text_box.disable_item_expand (l_update_check_link)
+-			end
++			-- EiffelGPL if l_update_check_link /= Void then
++		    --    eiffel_text_box.extend (l_update_check_link)
++		    --    eiffel_text_box.disable_item_expand (l_update_check_link)
++		    -- 	end
+ 			eiffel_text_box.extend (copyright_label)
+ 			eiffel_text_box.disable_item_expand (copyright_label)
+ 
+diff --git a/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e b/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+index d1235c88bd5..d37432e558d 100644
+--- a/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
++++ b/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+@@ -253,7 +253,8 @@ feature {NONE} -- Implementation (preparation of all widgets)
+ 				-- Save EIS storage when project is closed.
+ 			eiffel_project.manager.close_agents.extend (agent eis_manager.save_storage)
+ 
+-			launch_interface
++			-- EiffelGPL launch_interface
++            load_interface
+ 		end
+ 
+ 	launch_interface
+diff --git a/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e b/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e
+index 3db14d78f5e..cdc8f8eb15e 100644
+--- a/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e
++++ b/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e
+@@ -189,11 +189,12 @@ feature -- Access
+ 		require
+ 			not_is_recycled: not is_recycled
+ 		do
+-			if attached {ES_CLOUD_ACCOUNT_TOOL} develop_window.shell_tools.tool ({ES_CLOUD_ACCOUNT_TOOL}) as l_tool then
+-				Result := l_tool
+-			else
+-					-- Cloud service is not activated!
+-			end
++			-- EiffelGPL
++            -- if attached {ES_CLOUD_ACCOUNT_TOOL} develop_window.shell_tools.tool ({ES_CLOUD_ACCOUNT_TOOL}) as l_tool then
++			--     Result := l_tool
++			-- else
++			--		-- Cloud service is not activated!
++			-- end
+ 		end
+ 
+ 	scm_tool: detachable ES_SCM_TOOL
+diff --git a/Src/library/base/elks/encoding/implementation/unix/Clib/iconv-config b/Src/library/base/elks/encoding/implementation/unix/Clib/iconv-config
+index c0401ed5673..10159d6712f 100755
+--- a/Src/library/base/elks/encoding/implementation/unix/Clib/iconv-config
++++ b/Src/library/base/elks/encoding/implementation/unix/Clib/iconv-config
+@@ -28,7 +28,7 @@ while test $# -gt 0; do
+ 		elif echo "$ISE_PLATFORM" | grep "iphone" >/dev/null 2>&1; then
+ 			echo -liconv
+ 		elif echo "$ISE_PLATFORM" | grep "macosx" >/dev/null 2>&1; then
+-			echo -liconv
++			echo -L/opt/local/lib -liconv
+ 		elif echo "$ISE_PLATFORM" | grep "windows" >/dev/null 2>&1; then
+ 			echo -liconv
+ # mingw
+@@ -37,6 +37,8 @@ while test $# -gt 0; do
+ 		--include_path)
+ 		if echo "$ISE_PLATFORM" | grep "bsd" >/dev/null 2>&1; then
+ 			echo -I/usr/local/include
++		elif echo "$ISE_PLATFORM" | grep "macosx" >/dev/null 2>&1; then
++			echo -I/opt/local/include
+  		fi
+ 		;;
+ 		*)
+diff --git a/Src/library/vision2/build.eant b/Src/library/vision2/build.eant
+index 9e77b73a9df..5e9ed836821 100644
+--- a/Src/library/vision2/build.eant
++++ b/Src/library/vision2/build.eant
+@@ -16,8 +16,8 @@
+ 		<echo message="- Compile [Vision2]" />
+ 		<geant target="compile" file="build.eant" dir="Clib" 
+ 			reuse_variables="true" />
+-		<geant target="compile" file="build.eant" dir="implementation/gtk/Clib" unless="${is_windows}"
+-			reuse_variables="true" />
++		<!-- geant target="compile" file="build.eant" dir="implementation/gtk/Clib" unless="${is_windows}"
++			reuse_variables="true" / -->
+ 		<geant target="compile" file="build.eant" dir="implementation/gtk3/Clib" unless="${is_windows}"
+ 			reuse_variables="true" />
+ 	</target>
+diff --git a/Src/scripts/geant/deliv.eant b/Src/scripts/geant/deliv.eant
+index 2403dcaa47a..8ade3e46732 100644
+--- a/Src/scripts/geant/deliv.eant
++++ b/Src/scripts/geant/deliv.eant
+@@ -407,6 +407,8 @@
+ 
+ 		<!-- at this point, the runtime should already be compiled -->
+ 		<geant target="copy_file" 		arguments="${EIFFEL_SRC}/C,${a_dir}/studio/spec/${ISE_PLATFORM}/include,eif_confmagic.h" />
++		<geant target="copy_file" 	    arguments="${EIFFEL_SRC}/C/run-time,${a_dir}/studio/spec/${ISE_PLATFORM}/include,eif_stack.decl" />
++		<geant target="copy_file" 	    arguments="${EIFFEL_SRC}/C/run-time,${a_dir}/studio/spec/${ISE_PLATFORM}/include,eif_stack.interface" />
+ 		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/run-time,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,x2c${exe}" />
+ 		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/ipc/daemon,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,ecdbgd${exe}" />
+ 
+diff --git a/Src/scripts/geant/set_version.eant b/Src/scripts/geant/set_version.eant
+index 7ac8296a1f4..aaba943dfc7 100644
+--- a/Src/scripts/geant/set_version.eant
++++ b/Src/scripts/geant/set_version.eant
+@@ -104,7 +104,8 @@ endlocal
+ 
+ LC_MESSAGES=C
+ 
+-computed_svn_revision=`until svn info $1; do echo &quot;&quot;; done | grep &quot;Last Changed Rev&quot; | sed -e &quot;s/Last Changed Rev: //&quot;`
++# computed_svn_revision=`until svn info $1; do echo &quot;&quot;; done | grep &quot;Last Changed Rev&quot; | sed -e &quot;s/Last Changed Rev: //&quot;`
++computed_svn_revision=107822
+ if test "$computed_svn_revision" = "" ; then
+ 	echo bad
+ 	computed_svn_revision='0000 -- Script was unable to set this value'
+@@ -113,7 +114,7 @@ if test "$2" = "" ; then
+ 	echo $computed_svn_revision
+ else
+ 	echo Set version: LASTREV=$computed_svn_revision
+-	svn revert $2 #revert in case it was modification
++	# svn revert $2 #revert in case it was modification
+ 	sed -e "s/:= 0000/:= $computed_svn_revision/" $2 &gt; tmp
+ 	mv tmp $2
+ fi

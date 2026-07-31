@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -f *.log
+rm -rf Eiffel_22.05*
+rm -rf C C_library ecs runtimes
