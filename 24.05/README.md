@@ -1,7 +1,7 @@
 EiffelStudio 24.05
 ==================
 
-The EiffelStudio sources patched to compile with the Eiffel 22.05 macosx-armv6 compiler.
+The EiffelStudio sources patched to compile with the Eiffel 22.05 macosx-armv6 and msc_vc140 win64 compiler.
 
 Quick install:
 * git clone https://github.com/EiffelSoftware/EiffelStudio
