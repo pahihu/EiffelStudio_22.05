@@ -1,3 +1,49 @@
+diff --git a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
+index a620f5595be..e366d64e4e9 100644
+--- a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
++++ b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
+@@ -33,6 +33,13 @@ msbuild_40: $(RUNTIME_SRC) Makefile
+ 	$(RM) runtime.sln.cache
+ 	$(RM)  $(ISE_KEY_NAME)
+ 
++msbuild_60: $(RUNTIME_SRC) Makefile
++	$(CP) $(ISE_KEY_PATH) $(ISE_KEY_NAME)
++	msbuild runtime.sln /p:TargetFrameworkVersion=v6.0;ToolsVersion=6.0
++	$(RMDIR) obj
++	$(RM) runtime.sln.cache
++	$(RM)  $(ISE_KEY_NAME)
++
+ msbuild_netcore: $(RUNTIME_SRC) Makefile
+ 	dotnet build -c Release runtime_core.csproj --restore --no-incremental
+ 	dotnet publish -c Release runtime_core.csproj
+diff --git a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
+index 66929671803..51042862bd5 100644
+--- a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
++++ b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
+@@ -46,8 +46,21 @@
+ 			  force="true" 
+ 			><fileset include="@(EiffelSoftware*.*)" /></copy>
+ 	</target>
+-	<target name="compile_framework" depend="compile_framework_40"/>
+-	<target name="install_framework" depend="install_framework_40"/>
++	<target name="compile_framework_60">
++		<echo message="- Compile .Net framework 6.0 [EiffelSoftware.Runtime.dll]" />
++		<exec executable="nmake msbuild_60" if="${is_windows}" accept_errors="true"/>
++	</target>
++	<target name="install_framework_60" depend="compile_framework_60">
++		<echo message="- Install .Net framework 6.0 [EiffelSoftware.Runtime.dll]" />
++		<!-- Already done by compile_framework and msbuild_20-->
++		<mkdir directory="${cwd}${path_separator}netframework" />
++		<copy dir="${cwd}" 
++			  to_directory="${cwd}${path_separator}netframework"
++			  force="true" 
++			><fileset include="@(EiffelSoftware*.*)" /></copy>
++	</target>
++	<target name="compile_framework" depend="compile_framework_60"/>
++	<target name="install_framework" depend="install_framework_60"/>
+ 	<target name="compile_netcore" >
+ 		<echo message="- Compile .Net CORE Eiffel runtime" />
+ 		<exec executable="dotnet build -c Release runtime_core.csproj --restore --no-incremental" />
 diff --git a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e b/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
 index c870913bf41..9eb1f0de2b8 100644
 --- a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
@@ -132,9 +178,38 @@ index 9e77b73a9df..5e9ed836821 100644
  			reuse_variables="true" />
  	</target>
 diff --git a/Src/scripts/geant/deliv.eant b/Src/scripts/geant/deliv.eant
-index 2403dcaa47a..8ade3e46732 100644
+index 2403dcaa47a..20a4fca6803 100644
 --- a/Src/scripts/geant/deliv.eant
 +++ b/Src/scripts/geant/deliv.eant
+@@ -245,16 +245,16 @@
+ 
+ 	<target name="post_copy_ise_eiffel_to_delivery" depend="init_deliv" >
+ 		<available dir="$_TARGET_DELIV_DIR" resource="eweasel" variable="eweasel_available" />
+-		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}/eweasel,${_TARGET_DELIV_DIR}/eweasel" if="$eweasel_available=false" />
++		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}${path_separator}eweasel,${_TARGET_DELIV_DIR}${path_separator}eweasel" if="$eweasel_available=false" />
+ 
+ 		<available dir="$_TARGET_DELIV_DIR" resource="tools" variable="tools_available" />
+ 		<mkdir directory="${_TARGET_DELIV_DIR}/tools" if="$tools_available=false" />
+ 
+ 		<available dir="$_TARGET_DELIV_DIR/tools" resource="iron" variable="iron_tools_available" />
+-		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}/tools/iron,${_TARGET_DELIV_DIR}/tools/iron" if="$iron_tools_available=false" />
++		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}${path_separator}tools${path_separator}iron,${_TARGET_DELIV_DIR}${path_separator}tools${path_separator}iron" if="$iron_tools_available=false" />
+ 
+ 		<available dir="$_TARGET_DELIV_DIR/tools" resource="spec" variable="spec_tools_available" />
+-		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}/tools/spec,${_TARGET_DELIV_DIR}/tools/spec" if="$spec_tools_available=false" />
++		<geant target="copy_full_tree" arguments="${ISE_EIFFEL}${path_separator}tools${path_separator}spec,${_TARGET_DELIV_DIR}${path_separator}tools${path_separator}spec" if="$spec_tools_available=false" />
+ 	</target>
+ 
+ 	<target name="quick_delivery" depend="init_deliv" >
+@@ -339,7 +339,7 @@
+ 
+ 		<replace file="$_TARGET_DELIV_DIR/studio/config/windows/$ISE_C_COMPILER/config.eif" token="windows_flags: &quot;-SUBSYSTEM:WINDOWS&quot;" replace="windows_flags: &quot;-SUBSYSTEM:CONSOLE&quot;" flags="g" if="$is_windows" />
+ 
+-		<geant target="copy_full_tree" arguments="$_TARGET_DELIV_DIR/studio/config/windows,$_TARGET_DELIV_DIR/studio/config/$ISE_PLATFORM" if="${ISE_PLATFORM}=win64" />
++		<geant target="copy_full_tree" arguments="$_TARGET_DELIV_DIR${path_separator}studio${path_separator}config${path_separator}windows,$_TARGET_DELIV_DIR${path_separator}studio${path_separator}config${path_separator}$ISE_PLATFORM" if="${ISE_PLATFORM}=win64" />
+ 
+ 		<setenv name="EWEASEL" value="$EIFFEL_SRC${path_separator}..${path_separator}eweasel" />
+ 		<exec executable="move ec${exe} ecg${exe}" dir="$_TARGET_DELIV_DIR/studio/spec/$ISE_PLATFORM/bin" if="$is_windows" />
 @@ -407,6 +407,8 @@
  
  		<!-- at this point, the runtime should already be compiled -->
@@ -144,11 +219,67 @@ index 2403dcaa47a..8ade3e46732 100644
  		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/run-time,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,x2c${exe}" />
  		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/ipc/daemon,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,ecdbgd${exe}" />
  
+@@ -447,7 +449,7 @@
+ 		</group>
+ 		<available resource="${a_dir}/eweasel" variable="eweasel_available" />
+ 		<mkdir directory="$a_dir/eweasel" if="$eweasel_available=false"/>
+-		<geant target="copy_full_tree" arguments="${_EWEASEL_DIR}/eweasel,${a_dir}/eweasel" if="$eweasel_available=false" />
++		<geant target="copy_full_tree" arguments="${_EWEASEL_DIR}${path_separator}eweasel,${a_dir}${path_separator}eweasel" if="$eweasel_available=false" />
+ 
+ 	</target>
+ 
+@@ -1177,7 +1179,7 @@
+ 		<!-- Unix tools -->
+ 		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/shell/bin,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,rt_converter${exe}" />
+ 		<geant target="copy_exec_file" 	arguments="${EIFFEL_SRC}/C/shell/bin,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,sed${exe}" />
+-		<geant target="copy_file" 	arguments="${EIFFEL_SRC}/C/shell/bin,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,msys-1.0.dll" />
++		<geant target="copy_file" 	arguments="${EIFFEL_SRC}/C/shell/bin,${a_dir}/studio/spec/${ISE_PLATFORM}/bin,msys-2.0.dll" />
+ 		<mkdir directory="${a_dir}/studio/spec/${ISE_PLATFORM}/etc"  />
+ 	</target>
+ 
 diff --git a/Src/scripts/geant/set_version.eant b/Src/scripts/geant/set_version.eant
-index 7ac8296a1f4..aaba943dfc7 100644
+index 7ac8296a1f4..222d1678289 100644
 --- a/Src/scripts/geant/set_version.eant
 +++ b/Src/scripts/geant/set_version.eant
-@@ -104,7 +104,8 @@ endlocal
+@@ -57,22 +57,23 @@ set EFILE=%2
+ set EFILE_TMP=%EFILE%.tmp
+ set LC_MESSAGES=C
+ 
+-svn info %SVNWCT% &gt; %EFILE_TMP%
+-For /f &quot;tokens=1-4 delims=/ &quot; %%a in ('findstr /L /B /C:&quot;Last Changed Rev&quot; %EFILE_TMP%') do (set LASTREV=%%d)
+-del %EFILE_TMP%
+-if .%LASTREV%. == .. set LASTREV=0000 -- Script was unable to set this value
+-
+-for /f %%x in ('wmic path win32_utctime get /format:list ^| findstr &quot;=&quot;') do set %%x
+- IF %month% LSS 10 SET month=0%month%
+- IF %day% LSS 10 SET day=0%day%
+- IF %hour% LSS 10 SET hour=0%hour%
+- IF %minute% LSS 10 SET minute=0%minute%
+- IF %second% LSS 10 SET second=0%second%
+-set CURRDATE=%Year%-%Month%-%Day%
+-set CURRTIME=%hour%:%minute%:%second%
++rem svn info %SVNWCT% &gt; %EFILE_TMP%
++rem For /f &quot;tokens=1-4 delims=/ &quot; %%a in ('findstr /L /B /C:&quot;Last Changed Rev&quot; %EFILE_TMP%') do (set LASTREV=%%d)
++rem del %EFILE_TMP%
++rem if .%LASTREV%. == .. set LASTREV=0000 -- Script was unable to set this value
++set LASTREV=107822
++
++rem for /f %%x in ('wmic path win32_utctime get /format:list ^| findstr &quot;=&quot;') do set %%x
++rem  IF %month% LSS 10 SET month=0%month%
++rem  IF %day% LSS 10 SET day=0%day%
++rem  IF %hour% LSS 10 SET hour=0%hour%
++rem  IF %minute% LSS 10 SET minute=0%minute%
++rem  IF %second% LSS 10 SET second=0%second%
++set CURRDATE=2026-08-05
++set CURRTIME=20:53:00
+ 
+ echo Set version: LASTREV=%LASTREV%
+-svn revert %EFILE%
++rem svn revert %EFILE%
+ sed -e &quot;s/:= 0000/:= %LASTREV%/&quot; %EFILE% &gt; %EFILE_TMP%
+ move %EFILE_TMP% %EFILE%
+ 
+@@ -104,7 +105,8 @@ endlocal
  
  LC_MESSAGES=C
  
@@ -158,7 +289,7 @@ index 7ac8296a1f4..aaba943dfc7 100644
  if test "$computed_svn_revision" = "" ; then
  	echo bad
  	computed_svn_revision='0000 -- Script was unable to set this value'
-@@ -113,7 +114,7 @@ if test "$2" = "" ; then
+@@ -113,7 +115,7 @@ if test "$2" = "" ; then
  	echo $computed_svn_revision
  else
  	echo Set version: LASTREV=$computed_svn_revision
@@ -167,3 +298,15 @@ index 7ac8296a1f4..aaba943dfc7 100644
  	sed -e "s/:= 0000/:= $computed_svn_revision/" $2 &gt; tmp
  	mv tmp $2
  fi
+diff --git a/Src/scripts/geant/tools/finish_freezing.eant b/Src/scripts/geant/tools/finish_freezing.eant
+index f6c52102e83..e459972319d 100644
+--- a/Src/scripts/geant/tools/finish_freezing.eant
++++ b/Src/scripts/geant/tools/finish_freezing.eant
+@@ -28,6 +28,7 @@
+ 		<set name="_ecf_dir" value="${EIFFEL_SRC}${path_separator}tools${path_separator}finish_freezing" />
+ 		<copy dir="$_ecf_dir" file="appl.ico" to_directory="$a_dir" />
+ 		<copy dir="$_ecf_dir" file="finish_freezing.rc" to_directory="$a_dir" />
++		<copy dir="$_ecf_dir" file="finish_freezing.exe.manifest" to_directory="$a_dir" />
+ 		<unset name="_ecf_dir" />
+ 	</target>
+ 	
