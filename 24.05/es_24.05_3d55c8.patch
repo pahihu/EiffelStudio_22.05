@@ -1,49 +1,45 @@
 diff --git a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
-index a620f5595be..e366d64e4e9 100644
+index a620f5595be..7573e7229ab 100644
 --- a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
 +++ b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/Makefile
-@@ -33,6 +33,13 @@ msbuild_40: $(RUNTIME_SRC) Makefile
+@@ -21,14 +21,14 @@ dotnet_netcore: $(RUNTIME_SRC) Makefile
+ 
+ msbuild_20: $(RUNTIME_SRC) Makefile
+ 	$(CP) $(ISE_KEY_PATH) $(ISE_KEY_NAME)
+-	msbuild runtime.sln /p:TargetFrameworkVersion=v2.0;ToolsVersion=2.0
++	msbuild runtime.sln /p:TargetFrameworkVersion=v2.0;ToolsVersion=2.0 /p:Configuration=Debug /p:Platform="Any CPU"
+ 	$(RMDIR) obj
  	$(RM) runtime.sln.cache
  	$(RM)  $(ISE_KEY_NAME)
  
-+msbuild_60: $(RUNTIME_SRC) Makefile
-+	$(CP) $(ISE_KEY_PATH) $(ISE_KEY_NAME)
-+	msbuild runtime.sln /p:TargetFrameworkVersion=v6.0;ToolsVersion=6.0
-+	$(RMDIR) obj
-+	$(RM) runtime.sln.cache
-+	$(RM)  $(ISE_KEY_NAME)
-+
+ msbuild_40: $(RUNTIME_SRC) Makefile
+ 	$(CP) $(ISE_KEY_PATH) $(ISE_KEY_NAME)
+-	msbuild runtime.sln /p:TargetFrameworkVersion=v4.7;ToolsVersion=4.7
++	msbuild runtime.sln /p:TargetFrameworkVersion=v4.7;ToolsVersion=4.7 /p:Configuration=Debug /p:Platform="Any CPU"
+ 	$(RMDIR) obj
+ 	$(RM) runtime.sln.cache
+ 	$(RM)  $(ISE_KEY_NAME)
+@@ -36,5 +36,5 @@ msbuild_40: $(RUNTIME_SRC) Makefile
  msbuild_netcore: $(RUNTIME_SRC) Makefile
  	dotnet build -c Release runtime_core.csproj --restore --no-incremental
  	dotnet publish -c Release runtime_core.csproj
+-	$(CP) bin\Release\net6.0\publish\EiffelSoftware.Runtime.dll netcore/$(OUTPUT_NAME)
++	$(CP) bin\x64\Release\net6.0\publish\EiffelSoftware.Runtime.dll netcore\$(OUTPUT_NAME)
+ 	$(RMDIR) obj
 diff --git a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
-index 66929671803..51042862bd5 100644
+index 66929671803..d4bb3e971e2 100644
 --- a/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
 +++ b/Src/Eiffel/eiffel/com_il_generation/Core/run-time/build.eant
-@@ -46,8 +46,21 @@
- 			  force="true" 
- 			><fileset include="@(EiffelSoftware*.*)" /></copy>
+@@ -72,9 +72,6 @@
+ 	<target name="compile_40" >
+ 		<exec executable="nmake dotnet_framework" if="${is_windows}"/>
  	</target>
--	<target name="compile_framework" depend="compile_framework_40"/>
--	<target name="install_framework" depend="install_framework_40"/>
-+	<target name="compile_framework_60">
-+		<echo message="- Compile .Net framework 6.0 [EiffelSoftware.Runtime.dll]" />
-+		<exec executable="nmake msbuild_60" if="${is_windows}" accept_errors="true"/>
-+	</target>
-+	<target name="install_framework_60" depend="compile_framework_60">
-+		<echo message="- Install .Net framework 6.0 [EiffelSoftware.Runtime.dll]" />
-+		<!-- Already done by compile_framework and msbuild_20-->
-+		<mkdir directory="${cwd}${path_separator}netframework" />
-+		<copy dir="${cwd}" 
-+			  to_directory="${cwd}${path_separator}netframework"
-+			  force="true" 
-+			><fileset include="@(EiffelSoftware*.*)" /></copy>
-+	</target>
-+	<target name="compile_framework" depend="compile_framework_60"/>
-+	<target name="install_framework" depend="install_framework_60"/>
- 	<target name="compile_netcore" >
- 		<echo message="- Compile .Net CORE Eiffel runtime" />
- 		<exec executable="dotnet build -c Release runtime_core.csproj --restore --no-incremental" />
+-	<target name="compile_60" >
+-		<geant target="compile_netcore" unless="${is_windows}"/>
+-	</target>
+ 	<target name="clean" >
+ 		<echo message="- Clean [EiffelSoftware.Runtime.dll]" />
+ 		<delete>
 diff --git a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e b/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
 index c870913bf41..9eb1f0de2b8 100644
 --- a/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
